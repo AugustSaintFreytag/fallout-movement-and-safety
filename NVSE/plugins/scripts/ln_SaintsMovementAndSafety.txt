@@ -1,0 +1,30 @@
+; ToggleDisableSaves 0/1
+; EnableFastTravel 0/1
+
+; UDFs
+
+ref TickSavingUDF = CompileScript "SaintsMovementAndSafety\SMAS_TickSaving.gek"
+ref OnFastTravelMenuOpenUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnFastTravelMenuOpen.gek"
+ref OnFastTravelMenuCloseUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnFastTravelMenuClose.gek"
+
+
+ref OnSleepUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnSleep.gek"
+
+; Tick
+
+SetGameMainLoopCallback TickSavingUDF 1 60 1
+
+; Menu
+
+SetOnMenuOpenEventHandler OnFastTravelMenuOpenUDF 1 1023
+SetOnMenuCloseEventHandler OnFastTravelMenuCloseUDF 1 1023
+
+; Sleep/Wait
+
+SetJohnnyOnSleepWaitEventHandler 1 (begin function {} 
+	Call OnSleepUDF
+end) 0 2
+
+; Log
+
+Print "Set up event handlers for limited saving and fast travel."

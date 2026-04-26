@@ -1,0 +1,8 @@
+begin function {}
+
+	float fCurrentTime = (GetGameDaysPassed 2282 2 10)
+	float fTimeLastSlept = Player.AuxiliaryVariableGetFloat "*SMAS_fTimeLastSlept"
+
+	SetFunctionValue (fCurrentTime - fTimeLastSlept)
+
+end

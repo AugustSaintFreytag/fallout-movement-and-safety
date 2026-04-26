@@ -1,0 +1,78 @@
+; Note: This script could use `ToggleDisableSaves` but it does not work from a script runner.
+; The helper function `EnableSaves` provided by an already loaded plugin is used instead.
+
+begin function {}
+
+	; UDFs
+
+	ref GetTimeSinceLastSleptUDF = CompileScript "SaintsMovementAndSafety\SMAS_GetTimeSinceLastSlept.gek"
+
+	; Config
+
+	short bDisableInCombat = GetINIFloat_Cached "Saving:bDisableInCombat" "SaintsMovementAndSafety.ini"
+	short bDisableWhenNotSitting = GetINIFloat_Cached "Saving:bDisableWhenNotSitting" "SaintsMovementAndSafety.ini"
+	short bEnableAfterSleeping = GetINIFloat_Cached "Saving:bEnableAfterSleeping" "SaintsMovementAndSafety.ini"
+	float fSleepGraceGameTimeHours = GetINIFloat_Cached "Saving:fSleepGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+
+	; State
+
+	short bDidDisableSaves = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
+	short bDidAllowGraceSaves = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaves"
+
+	; Blocks
+
+	ref EnableSavingUDF = (begin function {} 
+		if eval (bDidDisableSaves == 0)
+			return
+		endif
+
+		Print "Enabling saving."
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 0
+		Call EnableSaves 1
+	end)
+
+	ref DisableSavingUDF = (begin function {}
+		if eval (bDidDisableSaves == 1)
+			return
+		endif
+
+		Print "Disabling saving."
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaves" 0
+		Call EnableSaves 0
+	end)
+
+	; Check Permittances
+
+	if eval (bEnableAfterSleeping == 1)
+		float fDaysSinceLastSlept = Call GetTimeSinceLastSleptUDF
+		float fHoursSinceLastSlept = fDaysSinceLastSlept * 24
+
+		if eval (fHoursSinceLastSlept < fSleepGraceGameTimeHours)
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaves" 1
+			Call EnableSavingUDF
+			return
+		endif
+	endif
+
+	; Check Restrictions
+
+	short iDetectionState = GetPCDetectionState
+	short bIsInCombat = (iDetectionState == 3 || iDetectionState == 1)
+
+	if eval (bDisableInCombat && bIsInCombat)
+
+		Call DisableSavingUDF
+		return
+	endif
+
+	short bIsSitting = (Player.GetSitting == 3)
+
+	if eval (bDisableWhenNotSitting && bIsSitting == 0)
+		Call DisableSavingUDF
+		return
+	endif
+
+	Call EnableSavingUDF
+
+end

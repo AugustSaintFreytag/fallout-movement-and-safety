@@ -1,0 +1,70 @@
+begin function { short iMenuId }
+
+	; UDFs
+
+	ref CheckFastTravelRestrictionUDF = CompileScript "SaintsMovementAndSafety\SMAS_CheckFastTravelRestriction.gek"
+
+	; State
+
+	short bDidGameDisabledFastTravel = GetPCHasScriptedFastTravelOverride
+
+	if bDidGameDisabledFastTravel == 1
+		return
+	endif
+
+	ref RestoreRegularFastTravelUDF = (begin function { string_var sMessage } 
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableFastTravel" 0
+		SetStringSetting "sNoFastTravelScriptBlock" ($sMessage)
+		EnableFastTravel 1
+
+		PrintC "Enabled fast travel."
+	end)
+
+	ref DisableFastTravelUDF = (begin function { short iReason, string_var sMessage } 
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableFastTravel" 1
+		SetStringSetting "sNoFastTravelScriptBlock" ($sMessage)
+		EnableFastTravel 0
+
+		PrintC "Disabled fast travel, reason %g." iReason
+	end)
+
+	; Run
+
+	; Check conditions and set appropriate fast travel message.
+	; The message is set as a game setting and used by the game automatically.
+
+	short iFastTravelRestriction = Call CheckFastTravelRestrictionUDF
+
+	if iFastTravelRestriction == 1
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while injured."
+		return
+	endif
+
+	if iFastTravelRestriction == 2
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel with crippled limbs."
+		return
+	endif
+
+	if iFastTravelRestriction == 3
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while irradiated."
+		return
+	endif
+
+	if iFastTravelRestriction == 4
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while starving."
+		return
+	endif
+
+	if iFastTravelRestriction == 5
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while dehydrated."
+		return
+	endif
+
+	if iFastTravelRestriction == 6
+		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while sleep deprived."
+		return
+	endif
+
+	Call RestoreRegularFastTravelUDF "Fast travel is currently unavailable."
+
+end

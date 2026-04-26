@@ -1,0 +1,9 @@
+begin function { short iMenuId }
+
+	short bDidDisableFastTravel = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableFastTravel"
+
+	if bDidDisableFastTravel == 1
+		EnableFastTravel 1
+	endif
+
+end

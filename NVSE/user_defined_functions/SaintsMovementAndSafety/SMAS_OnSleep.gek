@@ -1,0 +1,6 @@
+begin function { short iMode }
+
+	float fCurrentTime = (GetGameDaysPassed 2282 2 10)
+	Player.AuxiliaryVariableSetFloat "*SMAS_fTimeLastSlept" fCurrentTime
+
+end

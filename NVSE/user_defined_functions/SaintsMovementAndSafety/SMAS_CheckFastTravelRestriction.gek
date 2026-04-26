@@ -1,0 +1,94 @@
+begin function {}
+
+	; Returns:
+	;
+	; 0: Allowed
+	; 1: Health
+	; 2: Limbs
+	; 3: Radiation
+	; 4: Hunger
+	; 5: Thirst
+	; 6: Sleep
+
+	short bDisableWithCrippledHead = GetINIFloat_Cached "FastTravel:bDisableWithCrippledHead" "SaintsMovementAndSafety.ini"
+	short bDisableWithCrippledTorso = GetINIFloat_Cached "FastTravel:bDisableWithCrippledTorso" "SaintsMovementAndSafety.ini"
+	short bDisableWithCrippledArms = GetINIFloat_Cached "FastTravel:bDisableWithCrippledArms" "SaintsMovementAndSafety.ini"
+	short bDisableWithCrippledLegs = GetINIFloat_Cached "FastTravel:bDisableWithCrippledLegs" "SaintsMovementAndSafety.ini"
+	short bDisableWhenWounded = GetINIFloat_Cached "FastTravel:bDisableWhenWounded" "SaintsMovementAndSafety.ini"
+	short bDisableWhenIrradiated = GetINIFloat_Cached "FastTravel:bDisableWhenIrradiated" "SaintsMovementAndSafety.ini"
+	short bDisableWhenStarving = GetINIFloat_Cached "FastTravel:bDisableWhenStarving" "SaintsMovementAndSafety.ini"
+	short bDisableWhenDehydrated = GetINIFloat_Cached "FastTravel:bDisableWhenDehydrated" "SaintsMovementAndSafety.ini"
+	short bDisableWhenSleepDeprived = GetINIFloat_Cached "FastTravel:bDisableWhenSleepDeprived" "SaintsMovementAndSafety.ini"
+
+	float fMinHealth = GetINIFloat_Cached "FastTravel:fMinHealth" "SaintsMovementAndSafety.ini"
+	float fMinRads = GetINIFloat_Cached "FastTravel:fMinRads" "SaintsMovementAndSafety.ini"
+	float fMinDehydration = GetINIFloat_Cached "FastTravel:fMinDehydration" "SaintsMovementAndSafety.ini"
+	float fMinHunger = GetINIFloat_Cached "FastTravel:fMinHunger" "SaintsMovementAndSafety.ini"
+	float fMinSleep = GetINIFloat_Cached "FastTravel:fMinSleep" "SaintsMovementAndSafety.ini"
+
+	; Health
+
+	if eval (bDisableWhenWounded == 1) && (Player.GetHealthPercentage < fMinHealth)
+		SetFunctionValue 1
+		return
+	endif
+
+	; Limbs
+
+	short bPlayerHasCrippledHead = Player.GetAV PerceptionCondition <= 0
+	short bPlayerHasCrippledTorso = Player.GetAV EnduranceCondition <= 0
+	short bPlayerHasCrippledArms = Player.GetAV LeftAttackCondition <= 0 || Player.GetAV RightAttackCondition <= 0
+	short bPlayerHasCrippledLegs = Player.GetAV LeftMobilityCondition <= 0 || Player.GetAV RightMobilityCondition <= 0
+
+	if eval (bDisableWithCrippledHead == 1) && (bPlayerHasCrippledHead == 1)
+		SetFunctionValue 2
+		return
+	endif
+
+	if eval (bDisableWithCrippledTorso == 1) && (bPlayerHasCrippledTorso == 1)
+		SetFunctionValue 2
+		return
+	endif
+
+	if eval (bDisableWithCrippledArms == 1) && (bPlayerHasCrippledArms == 1)
+		SetFunctionValue 2
+		return
+	endif
+
+	if eval (bDisableWithCrippledLegs == 1) && (bPlayerHasCrippledLegs == 1)
+		SetFunctionValue 2
+		return
+	endif
+
+	; Radiation
+
+	if eval (bDisableWhenIrradiated == 1) && (Player.GetAV RadiationRads >= fMinRads)
+		SetFunctionValue 3
+		return
+	endif
+
+	; Hunger
+
+	if eval (bDisableWhenStarving == 1) && (Player.GetAV Hunger >= fMinHunger)
+		SetFunctionValue 4
+		return
+	endif
+
+	; Thirst
+
+	if eval (bDisableWhenDehydrated == 1) && (Player.GetAV Dehydration >= fMinDehydration)
+		SetFunctionValue 5
+		return
+	endif
+
+	; Sleep
+
+	; Note: Actor value is called "SleepDeprevation" [sic] in engine.
+	if eval (bDisableWhenSleepDeprived == 1) && (Player.GetAV SleepDeprevation >= fMinSleep)
+		SetFunctionValue 6
+		return
+	endif
+
+	SetFunctionValue 0
+
+end
