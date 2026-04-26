@@ -70,7 +70,14 @@ begin function {}
 		endif
 	endif
 
-	; Check Restrictions
+	; Restriction (Anywhere)
+
+	if eval (bDisableAnywhere)
+		Call DisableSavingUDF
+		return
+	endif
+
+	; Restriction (Combat)
 
 	short iDetectionState = GetPCDetectionState
 	short bIsInCombat = (iDetectionState == 3 || iDetectionState == 1)
