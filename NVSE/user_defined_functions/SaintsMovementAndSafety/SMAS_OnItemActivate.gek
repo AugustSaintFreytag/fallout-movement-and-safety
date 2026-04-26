@@ -1,0 +1,25 @@
+begin function { ref rActivator, ref rActionRef }
+
+	; Config
+
+	short bEnableAfterItem = GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
+
+	; Pre-Check
+
+	if bEnableAfterItem == 0
+		return
+	endif
+
+	if eval ((HasKeyword rActivator "SaveItems") == 0)
+		PrintC "Player used non-registered save item '%z'." (GetName rActivator)
+		return
+	endif
+
+	; Run
+
+	PrintC "Player used registered save item '%z'." (GetName rActivator)
+
+	float fCurrentTime = (GetGameDaysPassed 2282 2 10)
+	Player.AuxiliaryVariableSetFloat "*SMAS_fTimeLastUsedItem" fCurrentTime
+
+end
