@@ -20,16 +20,18 @@ begin function {}
 	short bEnableAfterItem = GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
 	float fItemGraceGameTimeHours = GetINIFloat_Cached "Saving:fItemGraceGameTimeHours" "SaintsMovementAndSafety.ini"
 
-	; State
-
-	short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
-	short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
-
 	; Blocks
 
 	ref EnableSavingUDF = (begin function {} 
-		if eval (bDidDisableSaving == 0)
+		short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
+		short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
+
+		if eval !bDidDisableSaving
 			return
+		endif
+
+		if eval bDidAllowGraceSaving
+			Call MessageSaveStateChangeUDF 1
 		endif
 
 		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 0
@@ -37,8 +39,15 @@ begin function {}
 	end)
 
 	ref DisableSavingUDF = (begin function {}
-		if eval (bDidDisableSaving == 1)
+		short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
+		short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
+
+		if eval bDidDisableSaving
 			return
+		endif
+
+		if eval bDidAllowGraceSaving
+			Call MessageSaveStateChangeUDF 0
 		endif
 
 		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
@@ -48,10 +57,10 @@ begin function {}
 
 	; Permittance (Sleep)
 
-	if eval (bEnableAfterSleeping == 1)
+	if eval bEnableAfterSleeping
 		short bIsWithinGracePeriodForSleeping = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastSlept" fSleepGraceGameTimeHours)
 
-		if bIsWithinGracePeriodForSleeping == 1
+		if bIsWithinGracePeriodForSleeping
 			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
 			Call EnableSavingUDF
 			return
@@ -60,10 +69,10 @@ begin function {}
 
 	; Permittance (Item)
 
-	if eval (bEnableAfterItem == 1)
+	if eval bEnableAfterItem
 		short bIsWithinGracePeriodForItem = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastUsedItem" fItemGraceGameTimeHours)
 
-		if bIsWithinGracePeriodForItem == 1
+		if bIsWithinGracePeriodForItem
 			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
 			Call EnableSavingUDF
 			return
@@ -72,7 +81,7 @@ begin function {}
 
 	; Restriction (Anywhere)
 
-	if eval (bDisableAnywhere)
+	if eval bDisableAnywhere
 		Call DisableSavingUDF
 		return
 	endif
