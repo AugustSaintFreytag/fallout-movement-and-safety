@@ -5,73 +5,98 @@ begin function {}
 
 	; UDFs
 
-	ref GetTimeSinceLastSleptUDF = CompileScript "SaintsMovementAndSafety\SMAS_GetTimeSinceLastSlept.gek"
+	ref CheckTimeSinceLastEventUDF = CompileScript "SaintsMovementAndSafety\SMAS_CheckTimeSinceLastEvent.gek"
+	ref MessageSaveStateChangeUDF = CompileScript "SaintsMovementAndSafety\SMAS_MessageSaveStateChange.gek"
 
 	; Config
 
+	short bDisableAnywhere = GetINIFloat_Cached "Saving:bDisableAnywhere" "SaintsMovementAndSafety.ini"
 	short bDisableInCombat = GetINIFloat_Cached "Saving:bDisableInCombat" "SaintsMovementAndSafety.ini"
 	short bDisableWhenNotSitting = GetINIFloat_Cached "Saving:bDisableWhenNotSitting" "SaintsMovementAndSafety.ini"
+
 	short bEnableAfterSleeping = GetINIFloat_Cached "Saving:bEnableAfterSleeping" "SaintsMovementAndSafety.ini"
 	float fSleepGraceGameTimeHours = GetINIFloat_Cached "Saving:fSleepGraceGameTimeHours" "SaintsMovementAndSafety.ini"
 
+	short bEnableAfterItem = GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
+	float fItemGraceGameTimeHours = GetINIFloat_Cached "Saving:fItemGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+
 	; State
 
-	short bDidDisableSaves = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
-	short bDidAllowGraceSaves = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaves"
+	short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
+	short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
 
 	; Blocks
 
 	ref EnableSavingUDF = (begin function {} 
-		if eval (bDidDisableSaves == 0)
+		if eval (bDidDisableSaving == 0)
 			return
 		endif
 
-		Print "Enabling saving."
 		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 0
 		Call EnableSaves 1
 	end)
 
 	ref DisableSavingUDF = (begin function {}
-		if eval (bDidDisableSaves == 1)
+		if eval (bDidDisableSaving == 1)
 			return
 		endif
 
-		Print "Disabling saving."
 		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
-		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaves" 0
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 0
 		Call EnableSaves 0
 	end)
 
-	; Check Permittances
+	; Permittance (Sleep)
 
 	if eval (bEnableAfterSleeping == 1)
-		float fDaysSinceLastSlept = Call GetTimeSinceLastSleptUDF
-		float fHoursSinceLastSlept = fDaysSinceLastSlept * 24
+		short bIsWithinGracePeriodForSleeping = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastSlept" fSleepGraceGameTimeHours)
 
-		if eval (fHoursSinceLastSlept < fSleepGraceGameTimeHours)
-			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaves" 1
+		if bIsWithinGracePeriodForSleeping == 1
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
 			Call EnableSavingUDF
 			return
 		endif
 	endif
 
-	; Check Restrictions
+	; Permittance (Item)
+
+	if eval (bEnableAfterItem == 1)
+		short bIsWithinGracePeriodForItem = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastUsedItem" fItemGraceGameTimeHours)
+
+		if bIsWithinGracePeriodForItem == 1
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
+			Call EnableSavingUDF
+			return
+		endif
+	endif
+
+	; Restriction (Anywhere)
+
+	if eval (bDisableAnywhere)
+		Call DisableSavingUDF
+		return
+	endif
+
+	; Restriction (Combat)
 
 	short iDetectionState = GetPCDetectionState
 	short bIsInCombat = (iDetectionState == 3 || iDetectionState == 1)
 
 	if eval (bDisableInCombat && bIsInCombat)
-
 		Call DisableSavingUDF
 		return
 	endif
+
+	; Restriction (Sitting)
 
 	short bIsSitting = (Player.GetSitting == 3)
 
-	if eval (bDisableWhenNotSitting && bIsSitting == 0)
+	if eval (bDisableWhenNotSitting && !bIsSitting)
 		Call DisableSavingUDF
 		return
 	endif
+
+	; Enable
 
 	Call EnableSavingUDF
 

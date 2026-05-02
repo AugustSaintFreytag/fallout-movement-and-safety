@@ -6,6 +6,7 @@
 ref TickSavingUDF = CompileScript "SaintsMovementAndSafety\SMAS_TickSaving.gek"
 ref OnFastTravelMenuOpenUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnFastTravelMenuOpen.gek"
 ref OnFastTravelMenuCloseUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnFastTravelMenuClose.gek"
+ref OnItemActivateUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnItemActivate.gek"
 
 
 ref OnSleepUDF = CompileScript "SaintsMovementAndSafety\SMAS_OnSleep.gek"
@@ -24,6 +25,10 @@ SetOnMenuCloseEventHandler OnFastTravelMenuCloseUDF 1 1023
 SetJohnnyOnSleepWaitEventHandler 1 (begin function {} 
 	Call OnSleepUDF
 end) 0 2
+
+; Item
+
+SetEventHandlerAlt "ShowOff:OnPreActivateInventoryItem" OnItemActivateUDF
 
 ; Log
 
