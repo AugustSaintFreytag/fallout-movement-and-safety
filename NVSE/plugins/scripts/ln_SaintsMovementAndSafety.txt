@@ -28,7 +28,7 @@ end) 0 2
 
 ; Item
 
-SetEventHandler "OnActivate" OnItemActivateUDF
+SetEventHandlerAlt "ShowOff:OnPreActivateInventoryItem" OnItemActivateUDF
 
 ; Log
 

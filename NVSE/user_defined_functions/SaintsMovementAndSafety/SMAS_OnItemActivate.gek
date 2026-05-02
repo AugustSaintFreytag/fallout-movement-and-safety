@@ -6,11 +6,11 @@ begin function { ref rActivator, ref rActionRef }
 
 	; Pre-Check
 
-	if bEnableAfterItem == 0
+	if eval !bEnableAfterItem
 		return
 	endif
 
-	if eval ((HasKeyword rActivator "SaveItems") == 0)
+	if eval !(HasKeyword rActivator "SaveItems")
 		PrintC "Player used non-registered save item '%z'." (GetName rActivator)
 		return
 	endif
