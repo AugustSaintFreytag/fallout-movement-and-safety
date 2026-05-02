@@ -1,0 +1,16 @@
+begin function { short iReason }
+
+	; 0 = Grace period expired.
+	; 1 = Grace period begins.
+
+	if iReason == 0
+		MessageExAlt 3 "#3|Your save period has expired."
+		return
+	endif
+
+	if iReason == 1
+		MessageExAlt 3 "#1|You now have the chance to save."
+		return
+	endif
+
+end
