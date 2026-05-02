@@ -32,4 +32,4 @@ SetEventHandlerAlt "ShowOff:OnPreActivateInventoryItem" OnItemActivateUDF
 
 ; Log
 
-Print "Set up event handlers for limited saving and fast travel."
+Print "Set up event handlers for Saint's Movement & Safety."
