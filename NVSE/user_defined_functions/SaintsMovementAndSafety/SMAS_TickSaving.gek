@@ -14,6 +14,9 @@ begin function {}
 	short bDisableInCombat = GetINIFloat_Cached "Saving:bDisableInCombat" "SaintsMovementAndSafety.ini"
 	short bDisableWhenNotSitting = GetINIFloat_Cached "Saving:bDisableWhenNotSitting" "SaintsMovementAndSafety.ini"
 
+	short bEnableNearFurniture = GetINIFloat_Cached "Saving:bEnableNearFurniture" "SaintsMovementAndSafety.ini"
+	float fFurnitureMaxDistance = GetINIFloat_Cached "Saving:fFurnitureMaxDistance" "SaintsMovementAndSafety.ini"
+
 	short bEnableAfterSleeping = GetINIFloat_Cached "Saving:bEnableAfterSleeping" "SaintsMovementAndSafety.ini"
 	float fSleepGraceGameTimeHours = GetINIFloat_Cached "Saving:fSleepGraceGameTimeHours" "SaintsMovementAndSafety.ini"
 
@@ -24,13 +27,13 @@ begin function {}
 
 	ref EnableSavingUDF = (begin function {} 
 		short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
-		short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
+		short bDidAllowTemporarySaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowTemporarySaving"
 
 		if eval !bDidDisableSaving
 			return
 		endif
 
-		if eval bDidAllowGraceSaving
+		if eval bDidAllowTemporarySaving
 			Call MessageSaveStateChangeUDF 1
 		endif
 
@@ -40,20 +43,30 @@ begin function {}
 
 	ref DisableSavingUDF = (begin function {}
 		short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
-		short bDidAllowGraceSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowGraceSaving"
+		short bDidAllowTemporarySaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowTemporarySaving"
 
 		if eval bDidDisableSaving
 			return
 		endif
 
-		if eval bDidAllowGraceSaving
+		if eval bDidAllowTemporarySaving
 			Call MessageSaveStateChangeUDF 0
 		endif
 
 		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
-		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 0
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 0
 		Call EnableSaves 0
 	end)
+	
+	; Restriction (Combat)
+
+	short iDetectionState = GetPCDetectionState
+	short bIsInCombat = (iDetectionState == 3 || iDetectionState == 1)
+
+	if eval (bDisableInCombat && bIsInCombat)
+		Call DisableSavingUDF
+		return
+	endif
 
 	; Permittance (Sleep)
 
@@ -61,7 +74,7 @@ begin function {}
 		short bIsWithinGracePeriodForSleeping = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastSlept" fSleepGraceGameTimeHours)
 
 		if bIsWithinGracePeriodForSleeping
-			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
 			Call EnableSavingUDF
 			return
 		endif
@@ -73,27 +86,38 @@ begin function {}
 		short bIsWithinGracePeriodForItem = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastUsedItem" fItemGraceGameTimeHours)
 
 		if bIsWithinGracePeriodForItem
-			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowGraceSaving" 1
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
 			Call EnableSavingUDF
 			return
 		endif
 	endif
 
-	; Restriction (Anywhere)
+	; Permittance (Furniture)
 
-	if eval bDisableAnywhere
-		Call DisableSavingUDF
-		return
-	endif
+	if eval bEnableNearFurniture
+		array_var aFurnitureObjects = GetRefs 39 1 1 fFurnitureMaxDistance
+		short bIsNearSaveFurniture = 0
 
-	; Restriction (Combat)
+		foreach array_var aEntry <- aFurnitureObjects
+			ref rFurniture = aEntry["value"]
+			if eval !(HasKeyword rFurniture "SaveFurniture")
+				continue
+			endif
 
-	short iDetectionState = GetPCDetectionState
-	short bIsInCombat = (iDetectionState == 3 || iDetectionState == 1)
+			if eval rFurniture.IsOwned && !(Player.HasOwnership rFurniture)
+				continue
+			endif
 
-	if eval (bDisableInCombat && bIsInCombat)
-		Call DisableSavingUDF
-		return
+			; Found matching furniture, allow.
+			let bIsNearSaveFurniture := 1
+			break
+		loop
+
+		if eval bIsNearSaveFurniture
+			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
+			Call EnableSavingUDF
+			return
+		endif
 	endif
 
 	; Restriction (Sitting)
@@ -101,6 +125,13 @@ begin function {}
 	short bIsSitting = (Player.GetSitting == 3)
 
 	if eval (bDisableWhenNotSitting && !bIsSitting)
+		Call DisableSavingUDF
+		return
+	endif
+	
+	; Restriction (Anywhere)
+
+	if eval bDisableAnywhere
 		Call DisableSavingUDF
 		return
 	endif

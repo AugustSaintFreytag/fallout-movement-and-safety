@@ -11,7 +11,7 @@ begin function { ref rActivator, ref rActionRef }
 	endif
 
 	if eval !(HasKeyword rActivator "SaveItems")
-		PrintC "Player used non-registered save item '%z'." (GetName rActivator)
+		; PrintC "Player used non-registered save item '%z'." (GetName rActivator)
 		return
 	endif
 

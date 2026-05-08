@@ -2,9 +2,11 @@ begin function { short iReason }
 
 	; 0 = Grace period expired.
 	; 1 = Grace period begins.
+	; 2 = Object distance exceeded.
+	; 3 = Object distance entered.
 
 	if iReason == 0
-		MessageExAlt 3 "#3|Your save period has expired."
+		MessageExAlt 3 "#3|You are no longer able to save."
 		return
 	endif
 
