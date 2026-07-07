@@ -5,23 +5,29 @@ begin function {}
 
 	; UDFs
 
+	ref GetConfigUDF = CompileScript "SaintsMovementAndSafety\SMAS_GetConfigForSaving.gek"
 	ref CheckTimeSinceLastEventUDF = CompileScript "SaintsMovementAndSafety\SMAS_CheckTimeSinceLastEvent.gek"
 	ref MessageSaveStateChangeUDF = CompileScript "SaintsMovementAndSafety\SMAS_MessageSaveStateChange.gek"
 
 	; Config
 
-	short bDisableAnywhere = GetINIFloat_Cached "Saving:bDisableAnywhere" "SaintsMovementAndSafety.ini"
-	short bDisableInCombat = GetINIFloat_Cached "Saving:bDisableInCombat" "SaintsMovementAndSafety.ini"
-	short bDisableWhenNotSitting = GetINIFloat_Cached "Saving:bDisableWhenNotSitting" "SaintsMovementAndSafety.ini"
+	array_var aConfig = Call GetConfigUDF
 
-	short bEnableNearFurniture = GetINIFloat_Cached "Saving:bEnableNearFurniture" "SaintsMovementAndSafety.ini"
-	float fFurnitureMaxDistance = GetINIFloat_Cached "Saving:fFurnitureMaxDistance" "SaintsMovementAndSafety.ini"
+	short bDisableAnywhere = aConfig["bDisableAnywhere"]
+	short bDisableInCombat = aConfig["bDisableInCombat"]
 
-	short bEnableAfterSleeping = GetINIFloat_Cached "Saving:bEnableAfterSleeping" "SaintsMovementAndSafety.ini"
-	float fSleepGraceGameTimeHours = GetINIFloat_Cached "Saving:fSleepGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+	short bEnableWhenSitting = aConfig["bEnableWhenSitting"]
 
-	short bEnableAfterItem = GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
-	float fItemGraceGameTimeHours = GetINIFloat_Cached "Saving:fItemGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+	short bEnableNearFurniture = aConfig["bEnableNearFurniture"]
+	float fFurnitureMaxDistance = aConfig["fFurnitureMaxDistance"]
+
+	short bEnableAfterSleeping = aConfig["bEnableAfterSleeping"]
+	float fSleepGraceGameTimeHours = aConfig["fSleepGraceGameTimeHours"]
+
+	short bEnableAfterItem = aConfig["bEnableAfterItem"]
+	float fItemGraceGameTimeHours = aConfig["fItemGraceGameTimeHours"]
+
+	let aConfig := Ar_Null
 
 	; Blocks
 
@@ -120,12 +126,12 @@ begin function {}
 		endif
 	endif
 
-	; Restriction (Sitting)
+	; Permittance (Sitting)
 
 	short bIsSitting = (Player.GetSitting == 3)
 
-	if eval (bDisableWhenNotSitting && !bIsSitting)
-		Call DisableSavingUDF
+	if eval (bEnableWhenSitting && bIsSitting)
+		Call EnableSavingUDF
 		return
 	endif
 	

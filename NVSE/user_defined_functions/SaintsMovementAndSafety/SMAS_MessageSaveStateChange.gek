@@ -11,7 +11,7 @@ begin function { short iReason }
 	endif
 
 	if iReason == 1
-		MessageExAlt 3 "#1|You now have the chance to save."
+		MessageExAlt 3 "#1|You now have a chance to save."
 		return
 	endif
 
