@@ -1,0 +1,101 @@
+begin function {}
+
+	; Reads saving config values from INI, then applies any MCM aux var overrides.
+	; MCM override values follow the convention:
+	;   0 = Use INI settings (no override)
+	;   1 = Force the setting off/false
+	;   2 = Force the setting on/true
+	; Returns a stringmap array_var with saving configuration values.
+
+	array_var aConfig = Ar_Construct "stringmap"
+
+	let aConfig["bDisableAnywhere"] := GetINIFloat_Cached "Saving:bDisableAnywhere" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableInCombat"] := GetINIFloat_Cached "Saving:bDisableInCombat" "SaintsMovementAndSafety.ini"
+	let aConfig["bEnableWhenSitting"] := GetINIFloat_Cached "Saving:bEnableWhenSitting" "SaintsMovementAndSafety.ini"
+
+	let aConfig["bEnableNearFurniture"] := GetINIFloat_Cached "Saving:bEnableNearFurniture" "SaintsMovementAndSafety.ini"
+	let aConfig["fFurnitureMaxDistance"] := GetINIFloat_Cached "Saving:fFurnitureMaxDistance" "SaintsMovementAndSafety.ini"
+
+	let aConfig["bEnableAfterSleeping"] := GetINIFloat_Cached "Saving:bEnableAfterSleeping" "SaintsMovementAndSafety.ini"
+	let aConfig["fSleepGraceGameTimeHours"] := GetINIFloat_Cached "Saving:fSleepGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+
+	let aConfig["bEnableAfterItem"] := GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
+	let aConfig["fItemGraceGameTimeHours"] := GetINIFloat_Cached "Saving:fItemGraceGameTimeHours" "SaintsMovementAndSafety.ini"
+
+	; MCM Override: Saving Anywhere
+	; 1 = Allow saving anywhere (bDisableAnywhere = 0)
+	; 2 = Disable saving anywhere (bDisableAnywhere = 1)
+
+	short iDisableSavingAnywhere = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iDisableSavingAnywhere"
+
+	if iDisableSavingAnywhere == 1
+		let aConfig["bDisableAnywhere"] := 0
+	elseif iDisableSavingAnywhere == 2
+		let aConfig["bDisableAnywhere"] := 1
+	endif
+
+	; MCM Override: Saving in Combat
+	; 1 = Allow saving in combat (bDisableInCombat = 0)
+	; 2 = Disable saving in combat (bDisableInCombat = 1)
+
+	short iDisableSavingInCombat = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iDisableSavingInCombat"
+
+	if iDisableSavingInCombat == 1
+		let aConfig["bDisableInCombat"] := 0
+	elseif iDisableSavingInCombat == 2
+		let aConfig["bDisableInCombat"] := 1
+	endif
+
+	; MCM Override: Saving when sitting
+	; 1 = Disable saving opportunity when sitting (bEnableWhenSitting = 0)
+	; 2 = Grant saving opportunity when sitting (bEnableWhenSitting = 1)
+
+	short iEnableWhenSitting = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iEnableWhenSitting"
+
+	if iEnableWhenSitting == 1
+		let aConfig["bEnableWhenSitting"] := 0
+	elseif iEnableWhenSitting == 2
+		let aConfig["bEnableWhenSitting"] := 1
+	endif
+
+	; MCM Override: Saving near furniture
+	; 1 = Disable saving opportunity when near furniture (bEnableNearFurniture = 0)
+	; 2 = Grant saving opportunity when near furniture (bEnableNearFurniture = 1)
+
+	short iEnableSavingNearFurniture = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iEnableSavingNearFurniture"
+
+	if iEnableSavingNearFurniture == 1
+		let aConfig["bEnableNearFurniture"] := 0
+	elseif iEnableSavingNearFurniture == 2
+		let aConfig["bEnableNearFurniture"] := 1
+	endif
+
+	; MCM Override: Saving after sleeping
+	; 1 = Disable saving opportunity after sleeping (bEnableAfterSleeping = 0)
+	; 2 = Grant saving opportunity after sleeping (bEnableAfterSleeping = 1)
+
+	short iEnableSavingAfterSleeping = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iEnableSavingAfterSleeping"
+
+	if iEnableSavingAfterSleeping == 1
+		let aConfig["bEnableAfterSleeping"] := 0
+	elseif iEnableSavingAfterSleeping == 2
+		let aConfig["bEnableAfterSleeping"] := 1
+	endif
+
+	; MCM Override: Saving from items
+	; 1 = Disable saving opportunity from items (bEnableAfterItem = 0)
+	; 2 = Grant saving opportunity from items (bEnableAfterItem = 1)
+
+	short iEnableSavingAfterItem = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iEnableSavingAfterItem"
+
+	if iEnableSavingAfterItem == 1
+		let aConfig["bEnableAfterItem"] := 0
+	elseif iEnableSavingAfterItem == 2
+		let aConfig["bEnableAfterItem"] := 1
+	endif
+
+	; Return
+
+	SetFunctionValue aConfig
+
+end

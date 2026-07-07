@@ -1,0 +1,60 @@
+begin function {}
+
+	; Reads fast travel config values from INI, then applies any MCM aux var overrides.
+	; MCM override values follow the convention:
+	;   0 = Use INI settings (no override)
+	;   1 = Force the setting off/false
+	;   2 = Force the setting on/true
+	; Returns a string map array with fast travel configuration values.
+
+	array_var aConfig = Ar_Construct "stringmap"
+
+	let aConfig["bDisableWithCrippledHead"] := GetINIFloat_Cached "FastTravel:bDisableWithCrippledHead" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWithCrippledTorso"] := GetINIFloat_Cached "FastTravel:bDisableWithCrippledTorso" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWithCrippledArms"] := GetINIFloat_Cached "FastTravel:bDisableWithCrippledArms" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWithCrippledLegs"] := GetINIFloat_Cached "FastTravel:bDisableWithCrippledLegs" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWhenWounded"] := GetINIFloat_Cached "FastTravel:bDisableWhenWounded" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWhenIrradiated"] := GetINIFloat_Cached "FastTravel:bDisableWhenIrradiated" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWhenStarving"] := GetINIFloat_Cached "FastTravel:bDisableWhenStarving" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWhenDehydrated"] := GetINIFloat_Cached "FastTravel:bDisableWhenDehydrated" "SaintsMovementAndSafety.ini"
+	let aConfig["bDisableWhenSleepDeprived"] := GetINIFloat_Cached "FastTravel:bDisableWhenSleepDeprived" "SaintsMovementAndSafety.ini"
+
+	let aConfig["fMinHealth"] := GetINIFloat_Cached "FastTravel:fMinHealth" "SaintsMovementAndSafety.ini"
+	let aConfig["fMinRads"] := GetINIFloat_Cached "FastTravel:fMinRads" "SaintsMovementAndSafety.ini"
+	let aConfig["fMinDehydration"] := GetINIFloat_Cached "FastTravel:fMinDehydration" "SaintsMovementAndSafety.ini"
+	let aConfig["fMinHunger"] := GetINIFloat_Cached "FastTravel:fMinHunger" "SaintsMovementAndSafety.ini"
+	let aConfig["fMinSleep"] := GetINIFloat_Cached "FastTravel:fMinSleep" "SaintsMovementAndSafety.ini"
+
+	; MCM Override: Fast Travel Restrictions
+	; 1 = Do not restrict travel (disable all conditions)
+	; 2 = Restrict travel with conditions enabled
+
+	short iRestrictFastTravel = Player.AuxiliaryVariableGetFloat "SMAS_MCM_iRestrictFastTravel"
+
+	if iRestrictFastTravel == 1
+		let aConfig["bDisableWithCrippledHead"] := 0
+		let aConfig["bDisableWithCrippledTorso"] := 0
+		let aConfig["bDisableWithCrippledArms"] := 0
+		let aConfig["bDisableWithCrippledLegs"] := 0
+		let aConfig["bDisableWhenWounded"] := 0
+		let aConfig["bDisableWhenIrradiated"] := 0
+		let aConfig["bDisableWhenStarving"] := 0
+		let aConfig["bDisableWhenDehydrated"] := 0
+		let aConfig["bDisableWhenSleepDeprived"] := 0
+	elseif iRestrictFastTravel == 2
+		let aConfig["bDisableWithCrippledHead"] := 0
+		let aConfig["bDisableWithCrippledTorso"] := 0
+		let aConfig["bDisableWithCrippledArms"] := 0
+		let aConfig["bDisableWithCrippledLegs"] := 1
+		let aConfig["bDisableWhenWounded"] := 1
+		let aConfig["bDisableWhenIrradiated"] := 1
+		let aConfig["bDisableWhenStarving"] := 1
+		let aConfig["bDisableWhenDehydrated"] := 1
+		let aConfig["bDisableWhenSleepDeprived"] := 1
+	endif
+
+	; Return
+
+	SetFunctionValue aConfig
+
+end
