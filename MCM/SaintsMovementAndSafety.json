@@ -1,0 +1,109 @@
+{
+    "modName": "SaintsMovementAndSafety",
+    "displayName": "Movement & Safety",
+    "description": "Configure conditions for fast travel and saving.",
+    "saveFile": "SaintsMovementAndSafety/settings.ini",
+    "minMCMVersion": 1.00,
+    "minModVersion": 1.00,
+    "requirements": [
+        { "type": "file", "file": "NVSE/plugins/scripts/ln_SaintsMovementAndSafety.txt" }
+    ],
+    "submenus": {
+        "0": {
+            "listTitle": "Settings",
+            "pageTitle": "Settings",
+            "active": 1,
+            "columns": 1,
+            "enable": 1,
+            "options": {
+                "1": {
+                    "title": "Fast Travel",
+                    "enable": 1,
+                    "type": 0
+                },
+                "2": {
+                    "title": "Restrictions",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Do not restrict travel",
+                        "Restrict travel with conditions"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iRestrictFastTravel", "key": 0, "default": 0}]
+                },
+                "3": {
+                    "title": "Saving",
+                    "enable": 1,
+                    "type": 0
+                },
+                "4": {
+                    "title": "Anywhere",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Allow saving anywhere",
+                        "Disable saving anywhere"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iDisableSavingAnywhere", "key": 0, "default": 0}]
+                },
+                "5": {
+                    "title": "Combat",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Allow saving in combat",
+                        "Disable saving in combat"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iDisableSavingInCombat", "key": 0, "default": 0}]
+                },
+                "6": {
+                    "title": "Sitting",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Disable saving opportunity when sitting",
+                        "Grant saving opportunity when sitting"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iEnableWhenSitting", "key": 0, "default": 0}]
+                },
+                "7": {
+                    "title": "Furniture",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Disable saving opportunity when near furniture",
+                        "Grant saving opportunity when near furniture"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iEnableSavingNearFurniture", "key": 0, "default": 0}]
+                },
+                "8": {
+                    "title": "Sleep",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Disable saving opportunity after sleeping",
+                        "Grant saving opportunity after sleeping"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iEnableSavingAfterSleeping", "key": 0, "default": 0}]
+                },
+                "9": {
+                    "title": "Items",
+                    "enable": 1,
+                    "type": 1,
+                    "strings": [
+                        "Use INI settings",
+                        "Disable saving opportunity from items",
+                        "Grant saving opportunity from items"
+                    ],
+                    "vars": [{ "form": "PlayerRef", "auxVar": "SMAS_MCM_iEnableSavingAfterItem", "key": 0, "default": 0}]
+                }
+            }
+        }
+    }
+}
