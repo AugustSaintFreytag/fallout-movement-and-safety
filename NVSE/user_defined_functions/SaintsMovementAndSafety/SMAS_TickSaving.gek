@@ -31,6 +31,10 @@ begin function {}
 
 	; Blocks
 
+	ref SetEnableSavingFlagsUDF = (begin function {} 
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 0
+	end)
+
 	ref EnableSavingUDF = (begin function {} 
 		short bDidDisableSaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidDisableSaving"
 		short bDidAllowTemporarySaving = Player.AuxiliaryVariableGetFloat "*SMAS_bDidAllowTemporarySaving"
@@ -43,8 +47,13 @@ begin function {}
 			Call MessageSaveStateChangeUDF 1
 		endif
 
-		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 0
+		Call SetEnableSavingFlagsUDF
 		Call EnableSaves 1
+	end)
+
+	ref SetDisableSavingFlagsUDF = (begin function {} 
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
+		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 0
 	end)
 
 	ref DisableSavingUDF = (begin function {}
@@ -59,8 +68,7 @@ begin function {}
 			Call MessageSaveStateChangeUDF 0
 		endif
 
-		Player.AuxiliaryVariableSetFloat "*SMAS_bDidDisableSaving" 1
-		Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 0
+		Call SetDisableSavingFlagsUDF
 		Call EnableSaves 0
 	end)
 	
@@ -80,6 +88,7 @@ begin function {}
 		short bIsWithinGracePeriodForSleeping = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastSlept" fSleepGraceGameTimeHours)
 
 		if bIsWithinGracePeriodForSleeping
+			Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" 1
 			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
 			Call EnableSavingUDF
 			return
@@ -92,6 +101,7 @@ begin function {}
 		short bIsWithinGracePeriodForItem = (Call CheckTimeSinceLastEventUDF "*SMAS_fTimeLastUsedItem" fItemGraceGameTimeHours)
 
 		if bIsWithinGracePeriodForItem
+			Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" 2
 			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
 			Call EnableSavingUDF
 			return
@@ -110,7 +120,7 @@ begin function {}
 				continue
 			endif
 
-			if eval rFurniture.IsOwned && !(Player.HasOwnership rFurniture)
+			if eval !(Player.HasOwnership rFurniture) && (rFurniture.GetOwner) && !(rFurniture.IsOwned Player)
 				continue
 			endif
 
@@ -120,7 +130,7 @@ begin function {}
 		loop
 
 		if eval bIsNearSaveFurniture
-			Player.AuxiliaryVariableSetFloat "*SMAS_bDidAllowTemporarySaving" 1
+			Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" 3
 			Call EnableSavingUDF
 			return
 		endif
@@ -131,6 +141,7 @@ begin function {}
 	short bIsSitting = (Player.GetSitting == 3)
 
 	if eval (bEnableWhenSitting && bIsSitting)
+		Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" 4
 		Call EnableSavingUDF
 		return
 	endif
@@ -138,12 +149,14 @@ begin function {}
 	; Restriction (Anywhere)
 
 	if eval bDisableAnywhere
+		Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" 0
 		Call DisableSavingUDF
 		return
 	endif
 
 	; Enable
 
+	Player.AuxiliaryVariableSetFloat "*_SMAS_iLastAllowedReason" (-1)
 	Call EnableSavingUDF
 
 end
