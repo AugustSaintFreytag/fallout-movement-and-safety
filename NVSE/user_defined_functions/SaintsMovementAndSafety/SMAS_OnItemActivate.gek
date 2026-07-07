@@ -1,8 +1,15 @@
-begin function { ref rActivator, ref rActionRef }
+begin function { ref rItem }
+
+	; UDFs
+
+	ref GetConfigUDF = CompileScript "SaintsMovementAndSafety\SMAS_GetConfigForSaving.gek"
 
 	; Config
+	
+	array_var aConfig = (Call GetConfigUDF)
+	short bEnableAfterItem = aConfig["bEnableAfterItem"]
 
-	short bEnableAfterItem = GetINIFloat_Cached "Saving:bEnableAfterItem" "SaintsMovementAndSafety.ini"
+	let aConfig := Ar_Null
 
 	; Pre-Check
 
@@ -10,14 +17,14 @@ begin function { ref rActivator, ref rActionRef }
 		return
 	endif
 
-	if eval !(HasKeyword rActivator "SaveItems")
-		; PrintC "Player used non-registered save item '%z'." (GetName rActivator)
+	if eval !(HasKeyword rItem "SaveItems")
+		; PrintC "Player used non-registered save item '%z'." (GetName rItem)
 		return
 	endif
 
 	; Run
 
-	PrintC "Player used registered save item '%z'." (GetName rActivator)
+	PrintC "Player used registered save item '%z'." (GetName rItem)
 
 	float fCurrentTime = (GetGameDaysPassed 2282 2 10)
 	Player.AuxiliaryVariableSetFloat "*SMAS_fTimeLastUsedItem" fCurrentTime
