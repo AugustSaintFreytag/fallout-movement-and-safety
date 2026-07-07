@@ -22,9 +22,17 @@ SetOnMenuCloseEventHandler OnFastTravelMenuCloseUDF 1 1023
 
 SetJohnnyOnSleepWaitEventHandler 1 OnSleepUDF 0 2
 
-; Item
+; Items
 
-SetEventHandlerAlt "ShowOff:OnPreActivateInventoryItem" OnItemActivateUDF
+ref rItemFormList = TempCloneForm HelpManual
+array_var aItemRefs = GetKeywordForms "SaveItems"
+
+ListClear rItemFormList
+ListAddArray rItemFormList aItemRefs
+
+SetOnUseAidItemEventHandler (begin function { ref rItem } 
+	Call OnItemActivateUDF rItem
+end) 1 rItemFormList
 
 ; Log
 

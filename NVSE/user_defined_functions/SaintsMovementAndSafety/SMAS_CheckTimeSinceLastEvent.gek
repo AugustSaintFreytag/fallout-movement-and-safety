@@ -1,10 +1,17 @@
 begin function { string_var sKey, float fGraceGameTimeHours }
 
 	float fCurrentTime = (GetGameDaysPassed 2282 2 10)
-	float fTimeLastSlept = Player.AuxiliaryVariableGetFloat ($sKey)
-	float fHoursSinceLastEvent = (fCurrentTime - fTimeLastSlept) * 24
+	float fTimeAtLastAction = Player.AuxiliaryVariableGetFloat ($sKey)
 
-	if fHoursSinceLastEvent > fGraceGameTimeHours
+	if eval fTimeAtLastAction == 0.0
+		; No time stored, return early.
+		SetFunctionValue 0
+		return
+	endif
+
+	float fHoursSinceLastAction = (fCurrentTime - fTimeAtLastAction) * 24
+
+	if eval fHoursSinceLastAction > fGraceGameTimeHours
 		; Grace period has expired, return 0 to indicate expiration.
 		SetFunctionValue 0
 		return
