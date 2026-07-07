@@ -2,7 +2,7 @@ begin function { short iMenuId }
 
 	; UDFs
 
-	ref CheckFastTravelRestrictionUDF = CompileScript "SaintsMovementAndSafety\SMAS_CheckFastTravelRestriction.gek"
+	ref CheckFastTravelRestrictionsUDF = CompileScript "SaintsMovementAndSafety\SMAS_CheckFastTravelRestrictions.gek"
 
 	; State
 
@@ -33,7 +33,7 @@ begin function { short iMenuId }
 	; Check conditions and set appropriate fast travel message.
 	; The message is set as a game setting and used by the game automatically.
 
-	short iFastTravelRestriction = Call CheckFastTravelRestrictionUDF
+	short iFastTravelRestriction = Call CheckFastTravelRestrictionsUDF
 
 	if iFastTravelRestriction == 1
 		Call DisableFastTravelUDF iFastTravelRestriction "You cannot fast travel while injured."

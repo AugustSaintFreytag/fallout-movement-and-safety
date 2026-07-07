@@ -1,5 +1,9 @@
 begin function {}
 
+	; UDFs
+
+	ref GetConfigUDF = CompileScript "SaintsMovementAndSafety\SMAS_GetConfigForFastTravel.gek"
+
 	; Returns:
 	;
 	; 0: Allowed
@@ -10,21 +14,27 @@ begin function {}
 	; 5: Thirst
 	; 6: Sleep
 
-	short bDisableWithCrippledHead = GetINIFloat_Cached "FastTravel:bDisableWithCrippledHead" "SaintsMovementAndSafety.ini"
-	short bDisableWithCrippledTorso = GetINIFloat_Cached "FastTravel:bDisableWithCrippledTorso" "SaintsMovementAndSafety.ini"
-	short bDisableWithCrippledArms = GetINIFloat_Cached "FastTravel:bDisableWithCrippledArms" "SaintsMovementAndSafety.ini"
-	short bDisableWithCrippledLegs = GetINIFloat_Cached "FastTravel:bDisableWithCrippledLegs" "SaintsMovementAndSafety.ini"
-	short bDisableWhenWounded = GetINIFloat_Cached "FastTravel:bDisableWhenWounded" "SaintsMovementAndSafety.ini"
-	short bDisableWhenIrradiated = GetINIFloat_Cached "FastTravel:bDisableWhenIrradiated" "SaintsMovementAndSafety.ini"
-	short bDisableWhenStarving = GetINIFloat_Cached "FastTravel:bDisableWhenStarving" "SaintsMovementAndSafety.ini"
-	short bDisableWhenDehydrated = GetINIFloat_Cached "FastTravel:bDisableWhenDehydrated" "SaintsMovementAndSafety.ini"
-	short bDisableWhenSleepDeprived = GetINIFloat_Cached "FastTravel:bDisableWhenSleepDeprived" "SaintsMovementAndSafety.ini"
+	; Config
 
-	float fMinHealth = GetINIFloat_Cached "FastTravel:fMinHealth" "SaintsMovementAndSafety.ini"
-	float fMinRads = GetINIFloat_Cached "FastTravel:fMinRads" "SaintsMovementAndSafety.ini"
-	float fMinDehydration = GetINIFloat_Cached "FastTravel:fMinDehydration" "SaintsMovementAndSafety.ini"
-	float fMinHunger = GetINIFloat_Cached "FastTravel:fMinHunger" "SaintsMovementAndSafety.ini"
-	float fMinSleep = GetINIFloat_Cached "FastTravel:fMinSleep" "SaintsMovementAndSafety.ini"
+	array_var aConfig = Call GetConfigUDF
+
+	short bDisableWithCrippledHead = aConfig["bDisableWithCrippledHead"]
+	short bDisableWithCrippledTorso = aConfig["bDisableWithCrippledTorso"]
+	short bDisableWithCrippledArms = aConfig["bDisableWithCrippledArms"]
+	short bDisableWithCrippledLegs = aConfig["bDisableWithCrippledLegs"]
+	short bDisableWhenWounded = aConfig["bDisableWhenWounded"]
+	short bDisableWhenIrradiated = aConfig["bDisableWhenIrradiated"]
+	short bDisableWhenStarving = aConfig["bDisableWhenStarving"]
+	short bDisableWhenDehydrated = aConfig["bDisableWhenDehydrated"]
+	short bDisableWhenSleepDeprived = aConfig["bDisableWhenSleepDeprived"]
+
+	float fMinHealth = aConfig["fMinHealth"]
+	float fMinRads = aConfig["fMinRads"]
+	float fMinDehydration = aConfig["fMinDehydration"]
+	float fMinHunger = aConfig["fMinHunger"]
+	float fMinSleep = aConfig["fMinSleep"]
+
+	let aConfig := Ar_Null
 
 	; Health
 
